@@ -2,14 +2,14 @@
 
   <PropertyGroup>
     <Description>An easy-to-use async WebDAV client for .NET, .NETStandard, Blazor-WASM and Portable based on https://github.com/skazantsev/WebDavClient.</Description>
-    <AssemblyTitle>WebDAV-Client</AssemblyTitle>
-    <RootNamespace>WebDav</RootNamespace>
+    <AssemblyTitle>WebDav.Client</AssemblyTitle>
+    <RootNamespace>WebDav.Client</RootNamespace>
     <VersionPrefix>1.1.2.0</VersionPrefix>
     <Authors>Sergey Kazantsev;Stef Heyenrath</Authors>
     <TargetFrameworks>net6.0;net7.0</TargetFrameworks>
-    <AssemblyName>WebDAV-Client</AssemblyName>
-    <PackageId>WebDAV-Client</PackageId>
-    <PackageTags>webdav;client;NETStandard;.NET;Portable;Blazor;WASM</PackageTags>
+    <AssemblyName>WebDav.Client</AssemblyName>
+    <PackageId>WebDav.Client</PackageId>
+    <PackageTags>webdav;client;.NET;Portable;Blazor;WASM</PackageTags>
     <PackageReleaseNotes>See CHANGELOG.md</PackageReleaseNotes>
     <PackageProjectUrl>https://github.com/stefh/WebDAV-Client</PackageProjectUrl>
     <PackageLicenseUrl>https://raw.githubusercontent.com/StefH/WebDAV-Client/master/LICENSE</PackageLicenseUrl>
