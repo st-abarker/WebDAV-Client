@@ -3,7 +3,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
+using System.Diagnostics.CodeAnalysis;
 
 namespace WebDav.Infrastructure
 {
@@ -11,9 +11,10 @@ namespace WebDav.Infrastructure
     {
         private readonly HttpClient _httpClient;
 
-        public WebDavDispatcher([NotNull] HttpClient httpClient)
-        {
-            Check.NotNull(httpClient, nameof(httpClient));
+        public WebDavDispatcher([DisallowNull] HttpClient httpClient)
+		{
+			if (httpClient is null)
+				throw new ArgumentNullException(nameof(httpClient));
 
             _httpClient = httpClient;
         }

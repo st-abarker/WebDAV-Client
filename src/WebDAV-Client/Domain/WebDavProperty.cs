@@ -1,4 +1,5 @@
-﻿using System.Xml.Linq;
+﻿using System;
+using System.Xml.Linq;
 
 namespace WebDav
 {
@@ -14,7 +15,10 @@ namespace WebDav
         /// <param name="value">The property value.</param>
         public WebDavProperty(XName name, string value)
         {
-            Check.NotEmpty((name ?? "").ToString(), nameof(name));
+	        if (name is null)
+		        throw new ArgumentNullException(nameof(name));
+	        if (name.ToString().Length == 0)
+		        throw new ArgumentException(CoreStrings.ArgumentIsEmpty(nameof(name)));
 
             Name = name;
             Value = value;

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Xml.Linq;
-using JetBrains.Annotations;
+using System.Diagnostics.CodeAnalysis;
 
 namespace WebDav.Response
 {
@@ -11,9 +11,10 @@ namespace WebDav.Response
     {
         private readonly LockResponseParser _lockResponseParser;
 
-        public PropfindResponseParser([NotNull] LockResponseParser lockResponseParser)
-        {
-            Check.NotNull(lockResponseParser, nameof(lockResponseParser));
+        public PropfindResponseParser([DisallowNull] LockResponseParser lockResponseParser)
+		{
+			if (lockResponseParser is null)
+				throw new ArgumentNullException(nameof(lockResponseParser));
             _lockResponseParser = lockResponseParser;
         }
 

@@ -1,5 +1,6 @@
-﻿using System.Threading;
-using JetBrains.Annotations;
+﻿using System;
+using System.Threading;
+using System.Diagnostics.CodeAnalysis;
 
 namespace WebDav
 {
@@ -12,11 +13,12 @@ namespace WebDav
         /// Initializes a new instance of the <see cref="UnlockParameters"/> class.
         /// <param name="lockToken">The resource lock token.</param>
         /// </summary>
-        public UnlockParameters([NotNull] string lockToken)
-        {
-            Check.NotNull(lockToken, nameof(lockToken));
+        public UnlockParameters([DisallowNull] string lockToken)
+		{
+			if (lockToken is null)
+				throw new ArgumentNullException(nameof(lockToken));
 
-            LockToken = lockToken;
+			LockToken = lockToken;
             CancellationToken = CancellationToken.None;
         }
 

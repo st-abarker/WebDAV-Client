@@ -1,4 +1,5 @@
-﻿using JetBrains.Annotations;
+﻿using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace WebDav
 {
@@ -11,9 +12,10 @@ namespace WebDav
         /// Initializes a new instance of the <see cref="PrincipalLockOwner"/> class.
         /// </summary>
         /// <param name="principalName">Name of the principal.</param>
-        public PrincipalLockOwner([NotNull] string principalName)
-        {
-            Check.NotNull(principalName, nameof(principalName));
+        public PrincipalLockOwner([DisallowNull] string principalName)
+		{
+			if (principalName is null)
+				throw new ArgumentNullException(nameof(principalName));
             Value = principalName;
         }
 

@@ -1,6 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-using JetBrains.Annotations;
+using System.Diagnostics.CodeAnalysis;
 
 namespace WebDav
 {
@@ -44,10 +45,11 @@ namespace WebDav
         /// <param name="statusCode">The status code of the response.</param>
         /// <param name="description">The description of the response.</param>
         /// <param name="resources">The collection of WebDAV resources.</param>
-        public PropfindResponse(int statusCode, string description, [NotNull] IEnumerable<WebDavResource> resources)
+        public PropfindResponse(int statusCode, string description, [DisallowNull] IEnumerable<WebDavResource> resources)
             : base(statusCode, description)
-        {
-            Check.NotNull(resources, nameof(resources));
+		{
+			if (resources is null)
+				throw new ArgumentNullException(nameof(resources));
             Resources = resources.ToList();
         }
 

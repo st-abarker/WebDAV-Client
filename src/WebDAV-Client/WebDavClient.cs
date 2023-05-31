@@ -6,7 +6,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
+using System.Diagnostics.CodeAnalysis;
 using WebDav.Infrastructure;
 using WebDav.Request;
 using WebDav.Response;
@@ -34,7 +34,6 @@ namespace WebDav
         /// <summary>
         /// Initializes a new instance of the <see cref="WebDavClient"/> class.
         /// </summary>
-        [PublicAPI]
         public WebDavClient()
             : this(new WebDavClientParams())
         {
@@ -44,20 +43,20 @@ namespace WebDav
         /// Initializes a new instance of the <see cref="WebDavClient"/> class.
         /// </summary>
         /// <param name="params">The parameters of the WebDAV client.</param>
-        [PublicAPI]
-        public WebDavClient([NotNull] WebDavClientParams @params) : this(ConfigureHttpClient(@params))
-        {
-            Check.NotNull(@params, nameof(@params));
+        public WebDavClient([DisallowNull] WebDavClientParams @params) : this(ConfigureHttpClient(@params))
+		{
+			if (@params is null)
+				throw new ArgumentNullException(nameof(@params));
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="WebDavClient"/> class using a HttpClient.
         /// </summary>
         /// <param name="httpClient">The HTTP client.</param>
-        [PublicAPI]
-        public WebDavClient([NotNull] HttpClient httpClient)
-        {
-            Check.NotNull(httpClient, nameof(httpClient));
+        public WebDavClient([DisallowNull] HttpClient httpClient)
+		{
+			if (httpClient is null)
+				throw new ArgumentNullException(nameof(httpClient));
 
             SetWebDavDispatcher(new WebDavDispatcher(httpClient));
 
@@ -104,12 +103,14 @@ namespace WebDav
         /// <param name="requestUri">The <see cref="System.Uri"/> to request.</param>
         /// <param name="parameters">Parameters of the PROPFIND operation.</param>
         /// <returns>An instance of <see cref="PropfindResponse" /></returns>
-        public async Task<PropfindResponse> Propfind([NotNull] Uri requestUri, [NotNull] PropfindParameters parameters)
-        {
-            Check.NotNull(requestUri, nameof(requestUri));
-            Check.NotNull(parameters, nameof(parameters));
+        public async Task<PropfindResponse> Propfind([DisallowNull] Uri requestUri, [DisallowNull] PropfindParameters parameters)
+		{
+			if (requestUri is null)
+				throw new ArgumentNullException(nameof(requestUri));
+			if (parameters is null)
+				throw new ArgumentNullException(nameof(parameters));
 
-            var applyTo = parameters.ApplyTo ?? ApplyTo.Propfind.ResourceAndChildren;
+			var applyTo = parameters.ApplyTo ?? ApplyTo.Propfind.ResourceAndChildren;
             var headers = new RequestHeaders
             {
                 new KeyValuePair<string, string>("Depth", DepthHeaderHelper.GetValueForPropfind(applyTo))
@@ -138,12 +139,14 @@ namespace WebDav
         /// <param name="requestUri">The <see cref="System.Uri"/> to request.</param>
         /// <param name="parameters">Parameters of the PROPPATCH operation.</param>
         /// <returns>An instance of <see cref="ProppatchResponse" /></returns>
-        public async Task<ProppatchResponse> Proppatch([NotNull] Uri requestUri, [NotNull] ProppatchParameters parameters)
-        {
-            Check.NotNull(requestUri, nameof(requestUri));
-            Check.NotNull(parameters, nameof(parameters));
+        public async Task<ProppatchResponse> Proppatch([DisallowNull] Uri requestUri, [DisallowNull] ProppatchParameters parameters)
+		{
+			if (requestUri is null)
+				throw new ArgumentNullException(nameof(requestUri));
+			if (parameters is null)
+				throw new ArgumentNullException(nameof(parameters));
 
-            var headers = new RequestHeaders();
+			var headers = new RequestHeaders();
             if (!string.IsNullOrEmpty(parameters.LockToken))
                 headers.Add(new KeyValuePair<string, string>("If", IfHeaderHelper.GetHeaderValue(parameters.LockToken)));
 
@@ -197,12 +200,14 @@ namespace WebDav
         /// <param name="requestUri">The <see cref="System.Uri"/> to request.</param>
         /// <param name="parameters">Parameters of the MKCOL operation.</param>
         /// <returns>An instance of <see cref="WebDavResponse" /></returns>
-        public async Task<WebDavResponse> Mkcol([NotNull] Uri requestUri, [NotNull] MkColParameters parameters)
-        {
-            Check.NotNull(requestUri, nameof(requestUri));
-            Check.NotNull(parameters, nameof(parameters));
+        public async Task<WebDavResponse> Mkcol([DisallowNull] Uri requestUri, [DisallowNull] MkColParameters parameters)
+		{
+			if (requestUri is null)
+				throw new ArgumentNullException(nameof(requestUri));
+			if (parameters is null)
+				throw new ArgumentNullException(nameof(parameters));
 
-            var headers = new RequestHeaders();
+			var headers = new RequestHeaders();
             if (!string.IsNullOrEmpty(parameters.LockToken))
                 headers.Add(new KeyValuePair<string, string>("If", IfHeaderHelper.GetHeaderValue(parameters.LockToken)));
 
@@ -297,9 +302,10 @@ namespace WebDav
             return GetFile(requestUri, true, parameters.CancellationToken);
         }
 
-        internal virtual async Task<WebDavStreamResponse> GetFile([NotNull] Uri requestUri, bool translate, CancellationToken cancellationToken)
-        {
-            Check.NotNull(requestUri, nameof(requestUri));
+        internal virtual async Task<WebDavStreamResponse> GetFile([DisallowNull] Uri requestUri, bool translate, CancellationToken cancellationToken)
+		{
+			if (requestUri is null)
+				throw new ArgumentNullException(nameof(requestUri));
 
             var headers = new RequestHeaders
             {
@@ -352,10 +358,12 @@ namespace WebDav
         /// <param name="requestUri">The <see cref="System.Uri"/> to request.</param>
         /// <param name="parameters">Parameters of the DELETE operation.</param>
         /// <returns>An instance of <see cref="WebDavResponse" /></returns>
-        public async Task<WebDavResponse> Delete([NotNull] Uri requestUri, [NotNull] DeleteParameters parameters)
-        {
-            Check.NotNull(requestUri, nameof(requestUri));
-            Check.NotNull(parameters, nameof(parameters));
+        public async Task<WebDavResponse> Delete([DisallowNull] Uri requestUri, [DisallowNull] DeleteParameters parameters)
+		{
+			if (requestUri is null)
+				throw new ArgumentNullException(nameof(requestUri));
+			if (parameters is null)
+				throw new ArgumentNullException(nameof(parameters));
 
             var headers = new RequestHeaders();
             if (!string.IsNullOrEmpty(parameters.LockToken))
@@ -433,11 +441,14 @@ namespace WebDav
         /// <param name="stream">The stream of content of the resource.</param>
         /// <param name="parameters">Parameters of the PUT operation.</param>
         /// <returns>An instance of <see cref="WebDavResponse" /></returns>
-        public async Task<WebDavResponse> PutFile([NotNull] Uri requestUri, [NotNull] Stream stream, [NotNull] PutFileParameters parameters)
-        {
-            Check.NotNull(requestUri, nameof(requestUri));
-            Check.NotNull(stream, nameof(stream));
-            Check.NotNull(parameters, nameof(parameters));
+        public async Task<WebDavResponse> PutFile([DisallowNull] Uri requestUri, [DisallowNull] Stream stream, [DisallowNull] PutFileParameters parameters)
+		{
+			if (requestUri is null)
+				throw new ArgumentNullException(nameof(requestUri));
+			if (stream is null)
+				throw new ArgumentNullException(nameof(stream));
+			if (parameters is null)
+				throw new ArgumentNullException(nameof(parameters));
 
             var headers = new RequestHeaders();
             if (!string.IsNullOrEmpty(parameters.LockToken))
@@ -491,13 +502,16 @@ namespace WebDav
         /// <param name="destUri">The destination <see cref="T:System.Uri"/>.</param>
         /// <param name="parameters">Parameters of the COPY operation.</param>
         /// <returns>An instance of <see cref="WebDavResponse" /></returns>
-        public async Task<WebDavResponse> Copy([NotNull] Uri sourceUri, [NotNull] Uri destUri, [NotNull] CopyParameters parameters)
-        {
-            Check.NotNull(sourceUri, nameof(sourceUri));
-            Check.NotNull(destUri, nameof(destUri));
-            Check.NotNull(parameters, nameof(parameters));
+        public async Task<WebDavResponse> Copy([DisallowNull] Uri sourceUri, [DisallowNull] Uri destUri, [DisallowNull] CopyParameters parameters)
+		{
+			if (sourceUri is null)
+				throw new ArgumentNullException(nameof(sourceUri));
+			if (destUri is null)
+				throw new ArgumentNullException(nameof(destUri));
+			if (parameters is null)
+				throw new ArgumentNullException(nameof(parameters));
 
-            var applyTo = parameters.ApplyTo ?? ApplyTo.Copy.ResourceAndAncestors;
+			var applyTo = parameters.ApplyTo ?? ApplyTo.Copy.ResourceAndAncestors;
             var headers = new RequestHeaders
             {
                 new KeyValuePair<string, string>("Destination", GetAbsoluteUri(destUri).ToString()),
@@ -556,11 +570,14 @@ namespace WebDav
         /// <param name="destUri">The destination <see cref="T:System.Uri"/>.</param>
         /// <param name="parameters">Parameters of the MOVE operation.</param>
         /// <returns>An instance of <see cref="WebDavResponse" /></returns>
-        public async Task<WebDavResponse> Move([NotNull] Uri sourceUri, [NotNull] Uri destUri, [NotNull] MoveParameters parameters)
-        {
-            Check.NotNull(sourceUri, nameof(sourceUri));
-            Check.NotNull(destUri, nameof(destUri));
-            Check.NotNull(parameters, nameof(parameters));
+        public async Task<WebDavResponse> Move([DisallowNull] Uri sourceUri, [DisallowNull] Uri destUri, [DisallowNull] MoveParameters parameters)
+		{
+			if (sourceUri is null)
+				throw new ArgumentNullException(nameof(sourceUri));
+			if (destUri is null)
+				throw new ArgumentNullException(nameof(destUri));
+			if (parameters is null)
+				throw new ArgumentNullException(nameof(parameters));
 
             var headers = new RequestHeaders
             {
@@ -618,10 +635,12 @@ namespace WebDav
         /// <param name="requestUri">The <see cref="System.Uri"/> to request.</param>
         /// <param name="parameters">Parameters of the LOCK operation.</param>
         /// <returns>An instance of <see cref="LockResponse" /></returns>
-        public async Task<LockResponse> Lock([NotNull] Uri requestUri, [NotNull] LockParameters parameters)
-        {
-            Check.NotNull(requestUri, nameof(requestUri));
-            Check.NotNull(parameters, nameof(parameters));
+        public async Task<LockResponse> Lock([DisallowNull] Uri requestUri, [DisallowNull] LockParameters parameters)
+		{
+			if (requestUri is null)
+				throw new ArgumentNullException(nameof(requestUri));
+			if (parameters is null)
+				throw new ArgumentNullException(nameof(parameters));
 
             var headers = new RequestHeaders();
             if (parameters.ApplyTo.HasValue)
@@ -683,10 +702,12 @@ namespace WebDav
         /// <param name="requestUri">The <see cref="System.Uri"/> to request.</param>
         /// <param name="parameters">Parameters of the UNLOCK operation.</param>
         /// <returns>An instance of <see cref="WebDavResponse" /></returns>
-        public async Task<WebDavResponse> Unlock([NotNull] Uri requestUri, [NotNull] UnlockParameters parameters)
-        {
-            Check.NotNull(requestUri, nameof(requestUri));
-            Check.NotNull(parameters, nameof(parameters));
+        public async Task<WebDavResponse> Unlock([DisallowNull] Uri requestUri, [DisallowNull] UnlockParameters parameters)
+		{
+			if (requestUri is null)
+				throw new ArgumentNullException(nameof(requestUri));
+			if (parameters is null)
+				throw new ArgumentNullException(nameof(parameters));
 
             var headers = new RequestHeaders
             {
@@ -705,9 +726,10 @@ namespace WebDav
         /// </summary>
         /// <param name="dispatcher">The dispatcher of WebDAV http requests.</param>
         /// <returns>This instance of <see cref="WebDavClient" /> to support chain calls.</returns>
-        internal WebDavClient SetWebDavDispatcher([NotNull] IWebDavDispatcher dispatcher)
-        {
-            Check.NotNull(dispatcher, nameof(dispatcher));
+        internal WebDavClient SetWebDavDispatcher([DisallowNull] IWebDavDispatcher dispatcher)
+		{
+			if (dispatcher is null)
+				throw new ArgumentNullException(nameof(dispatcher));
             _dispatcher = dispatcher;
             return this;
         }
@@ -717,10 +739,11 @@ namespace WebDav
         /// </summary>
         /// <param name="responseParser">The parser of WebDAV PROPFIND responses.</param>
         /// <returns>This instance of <see cref="WebDavClient" /> to support chain calls.</returns>
-        internal WebDavClient SetPropfindResponseParser([NotNull] IResponseParser<PropfindResponse> responseParser)
-        {
-            Check.NotNull(responseParser, nameof(responseParser));
-            _propfindResponseParser = responseParser;
+        internal WebDavClient SetPropfindResponseParser([DisallowNull] IResponseParser<PropfindResponse> responseParser)
+		{
+			if (responseParser is null)
+				throw new ArgumentNullException(nameof(responseParser));
+			_propfindResponseParser = responseParser;
             return this;
         }
 
@@ -729,9 +752,10 @@ namespace WebDav
         /// </summary>
         /// <param name="responseParser">The parser of WebDAV PROPPATCH responses.</param>
         /// <returns>This instance of <see cref="WebDavClient" /> to support chain calls.</returns>
-        internal WebDavClient SetProppatchResponseParser([NotNull] IResponseParser<ProppatchResponse> responseParser)
-        {
-            Check.NotNull(responseParser, nameof(responseParser));
+        internal WebDavClient SetProppatchResponseParser([DisallowNull] IResponseParser<ProppatchResponse> responseParser)
+		{
+			if (responseParser is null)
+				throw new ArgumentNullException(nameof(responseParser));
             _proppatchResponseParser = responseParser;
             return this;
         }
@@ -741,9 +765,10 @@ namespace WebDav
         /// </summary>
         /// <param name="responseParser">The parser of WebDAV LOCK responses.</param>
         /// <returns>This instance of <see cref="WebDavClient" /> to support chain calls.</returns>
-        internal WebDavClient SetLockResponseParser([NotNull] IResponseParser<LockResponse> responseParser)
-        {
-            Check.NotNull(responseParser, nameof(responseParser));
+        internal WebDavClient SetLockResponseParser([DisallowNull] IResponseParser<LockResponse> responseParser)
+		{
+			if (responseParser is null)
+				throw new ArgumentNullException(nameof(responseParser));
             _lockResponseParser = responseParser;
             return this;
         }

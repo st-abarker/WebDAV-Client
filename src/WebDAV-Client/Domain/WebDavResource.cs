@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using JetBrains.Annotations;
+using System.Diagnostics.CodeAnalysis;
 
 namespace WebDav
 {
@@ -228,19 +228,21 @@ namespace WebDav
             /// <summary>
             /// Sets the Properties parameter of an instance of the <see cref="WebDavResource"/> class.
             /// </summary>
-            public Builder WithProperties([NotNull] IReadOnlyCollection<WebDavProperty> properties)
-            {
-                Check.NotNull(properties, nameof(properties));
-                _properties = properties;
+            public Builder WithProperties([DisallowNull] IReadOnlyCollection<WebDavProperty> properties)
+			{
+				if (properties is null)
+					throw new ArgumentNullException(nameof(properties));
+				_properties = properties;
                 return this;
             }
 
             /// <summary>
             /// Sets the PropertyStatuses parameter of an instance of the <see cref="WebDavResource"/> class.
             /// </summary>
-            public Builder WithPropertyStatuses([NotNull] IReadOnlyCollection<WebDavPropertyStatus> propertyStatuses)
-            {
-                Check.NotNull(propertyStatuses, nameof(propertyStatuses));
+            public Builder WithPropertyStatuses([DisallowNull] IReadOnlyCollection<WebDavPropertyStatus> propertyStatuses)
+			{
+				if (propertyStatuses is null)
+					throw new ArgumentNullException(nameof(propertyStatuses));
                 _propertyStatuses = propertyStatuses;
                 return this;
             }

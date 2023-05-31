@@ -1,5 +1,6 @@
-﻿using System.Collections.Generic;
-using JetBrains.Annotations;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace WebDav
 {
@@ -43,10 +44,11 @@ namespace WebDav
         /// <param name="statusCode">The status code of the response.</param>
         /// <param name="description">The description of the response.</param>
         /// <param name="propertyStatuses">The collection of property statuses.</param>
-        public ProppatchResponse(int statusCode, string description, [NotNull] IEnumerable<WebDavPropertyStatus> propertyStatuses)
+        public ProppatchResponse(int statusCode, string description, [DisallowNull] IEnumerable<WebDavPropertyStatus> propertyStatuses)
             : base(statusCode, description)
-        {
-            Check.NotNull(propertyStatuses, nameof(propertyStatuses));
+		{
+			if (propertyStatuses is null)
+				throw new ArgumentNullException(nameof(propertyStatuses));
             PropertyStatuses = new List<WebDavPropertyStatus>(propertyStatuses);
         }
 

@@ -1,5 +1,5 @@
 ﻿using System;
-using JetBrains.Annotations;
+using System.Diagnostics.CodeAnalysis;
 
 // copied from https://github.com/aspnet/EntityFramework/blob/dev/src/Microsoft.EntityFrameworkCore/Properties/CoreStrings.resx
 namespace WebDav
@@ -9,33 +9,33 @@ namespace WebDav
         /// <summary>
         /// The property '{property}' of the argument '{argument}' cannot be null.
         /// </summary>
-        public static string ArgumentPropertyNull([CanBeNull] string property, [CanBeNull] string argument)
+        public static string ArgumentPropertyNull([AllowNull] string property, [AllowNull] string argument)
         {
-            return string.Format($"The property '{property}' of the argument '{argument}' cannot be null.", property, argument);
+            return $"The property '{property}' of the argument '{argument}' cannot be null.";
         }
 
         /// <summary>
         /// The string argument '{argumentName}' cannot be empty.
         /// </summary>
-        public static string ArgumentIsEmpty([CanBeNull] string argumentName)
+        public static string ArgumentIsEmpty([AllowNull] string argumentName)
         {
-            return string.Format($"The string argument '{argumentName}' cannot be empty.", argumentName);
+            return $"The string argument '{argumentName}' cannot be empty.";
         }
 
         /// <summary>
         /// The entity type '{type}' provided for the argument '{argumentName}' must be a reference type.
         /// </summary>
-        public static string InvalidEntityType([CanBeNull] Type type, [CanBeNull] string argumentName)
+        public static string InvalidEntityType([AllowNull] Type type, [AllowNull] string argumentName)
         {
-            return string.Format($"The entity type '{type}' provided for the argument '{argumentName}' must be a reference type.", type, argumentName);
+            return $"The entity type '{type}' provided for the argument '{argumentName}' must be a reference type.";
         }
 
         /// <summary>
         /// The collection argument '{argumentName}' must contain at least one element.
         /// </summary>
-        public static string CollectionArgumentIsEmpty([CanBeNull] string argumentName)
+        public static string CollectionArgumentIsEmpty([AllowNull] string argumentName)
         {
-            return string.Format($"The collection argument '{argumentName}' must contain at least one element.", argumentName);
+            return $"The collection argument '{argumentName}' must contain at least one element.";
         }
     }
 }

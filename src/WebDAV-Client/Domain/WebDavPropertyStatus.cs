@@ -1,4 +1,5 @@
-﻿using System.Xml.Linq;
+﻿using System;
+using System.Xml.Linq;
 
 namespace WebDav
 {
@@ -24,8 +25,11 @@ namespace WebDav
         /// <param name="statusCode">The status code of the operation.</param>
         /// <param name="description">The description of the operation.</param>
         public WebDavPropertyStatus(XName name, int statusCode, string description)
-        {
-            Check.NotEmpty((name ?? "").ToString(), nameof(name));
+		{
+			if (name is null)
+				throw new ArgumentNullException(nameof(name));
+			if (name.ToString().Length == 0)
+				throw new ArgumentException(CoreStrings.ArgumentIsEmpty(nameof(name)));
 
             Name = name;
             StatusCode = statusCode;
