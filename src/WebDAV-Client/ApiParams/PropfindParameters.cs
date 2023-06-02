@@ -20,6 +20,9 @@ namespace WebDav
             CancellationToken = CancellationToken.None;
         }
 
+        /// <summary>
+        /// Gets or sets the collection of standard properties. If null or empty, then allprop will be used.
+        /// </summary>
         public IReadOnlyCollection<XName> StandardProperties { get; set; }
 
         /// <summary>
