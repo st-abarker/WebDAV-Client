@@ -15,9 +15,12 @@ namespace WebDav
         public PropfindParameters()
         {
             CustomProperties = new List<XName>();
+            StandardProperties = new List<XName>();
             Namespaces = new List<NamespaceAttr>();
             CancellationToken = CancellationToken.None;
         }
+
+        public IReadOnlyCollection<XName> StandardProperties { get; set; }
 
         /// <summary>
         /// Gets or sets the collection of custom properties (or dead properties in terms of WebDav).

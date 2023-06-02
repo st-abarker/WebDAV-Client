@@ -78,7 +78,7 @@ namespace WebDav.Client.Tests.WebDavClientTests
             var dispatcher = Dispatcher.Mock();
             var client = new WebDavClient().SetWebDavDispatcher(dispatcher);
 
-            await client.Lock("http://example.com", new LockParameters { ApplyTo = ApplyTo.Lock.ResourceAndAncestors });
+            await client.Lock("http://example.com", new LockParameters { ApplyTo = ApplyTo.Lock.ResourceAndAllDescendants });
             await dispatcher.Received(1)
                 .Send(Arg.Any<Uri>(), WebDavMethod.Lock, Arg.Is(Predicates.CompareHeader("Depth", "infinity")), CancellationToken.None);
         }

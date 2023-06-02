@@ -68,7 +68,7 @@ namespace WebDav.Client.Tests.WebDavClientTests
             var dispatcher = Dispatcher.Mock();
             var client = new WebDavClient().SetWebDavDispatcher(dispatcher);
 
-            await client.Propfind("http://example.com", new PropfindParameters { ApplyTo = ApplyTo.Propfind.ResourceAndAncestors });
+            await client.Propfind("http://example.com", new PropfindParameters { ApplyTo = ApplyTo.Propfind.ResourceAndAllDescendants });
             await dispatcher.Received(1)
                 .Send(Arg.Any<Uri>(), WebDavMethod.Propfind, Arg.Is(Predicates.CompareHeader("Depth", "infinity")), CancellationToken.None);
         }

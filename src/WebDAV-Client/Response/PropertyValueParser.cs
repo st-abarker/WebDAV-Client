@@ -55,7 +55,7 @@ namespace WebDav.Response
         {
             if (element == null)
                 return null;
-            return element.Value.Equals("0") ? ApplyTo.Lock.ResourceOnly : ApplyTo.Lock.ResourceAndAncestors;
+            return element.Value.Equals("0") ? ApplyTo.Lock.ResourceOnly : ApplyTo.Lock.ResourceAndAllDescendants;
         }
 
         public static LockOwner ParseOwner(XElement element)

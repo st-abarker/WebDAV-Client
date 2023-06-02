@@ -56,6 +56,11 @@ namespace WebDav
         public IDictionary<string, string> DefaultRequestHeaders { get; set; }
 
         /// <summary>
+        ///  Gets or sets a flag indicating whether the client should ignore issues with the SSL security certificate.
+        /// </summary>
+        public bool IgnoreSslCertificateErrors { get; set; }
+
+        /// <summary>
         /// Gets or sets a value that indicates whether an Authorization header should be sent with the request.
         /// </summary>
         /// <value>

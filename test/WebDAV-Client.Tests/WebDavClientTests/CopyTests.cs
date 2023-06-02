@@ -132,7 +132,7 @@ namespace WebDav.Client.Tests.WebDavClientTests
             var client = new WebDavClient().SetWebDavDispatcher(dispatcher);
 
             await dispatcher.DidNotReceiveWithAnyArgs().Send(sourceUri, Arg.Any<HttpMethod>(), new RequestParameters(), CancellationToken.None);
-            await client.Copy(sourceUri, new Uri("http://example.com/new"), new CopyParameters { ApplyTo = ApplyTo.Copy.ResourceAndAncestors});
+            await client.Copy(sourceUri, new Uri("http://example.com/new"), new CopyParameters { ApplyTo = ApplyTo.Copy.ResourceAndAllDescendants});
             await dispatcher.Received(1)
                 .Send(sourceUri, WebDavMethod.Copy, Arg.Is(Predicates.CompareHeader("Depth", "infinity")), CancellationToken.None);
         }

@@ -13,7 +13,7 @@
         {
             ResourceOnly,
             ResourceAndChildren,
-            ResourceAndAncestors
+            ResourceAndAllDescendants
         }
 
         /// <summary>
@@ -23,7 +23,7 @@
         public enum Copy
         {
             ResourceOnly,
-            ResourceAndAncestors
+            ResourceAndAllDescendants
         }
 
         /// <summary>
@@ -33,7 +33,7 @@
         public enum Lock
         {
             ResourceOnly,
-            ResourceAndAncestors
+            ResourceAndAllDescendants
         }
     }
 }

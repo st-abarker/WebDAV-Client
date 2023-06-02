@@ -7,6 +7,8 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Diagnostics.CodeAnalysis;
+using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
 using WebDav.Infrastructure;
 using WebDav.Request;
 using WebDav.Response;
@@ -19,7 +21,7 @@ namespace WebDav
     /// </summary>
     public class WebDavClient : IDisposable
     {
-        private const string MediaTypeXml = "application/xml";
+        private const string MediaTypeXml = "text/xml";
         private static readonly Encoding DefaultEncoding = Encoding.UTF8;
         private static readonly Encoding FallbackEncoding = Encoding.UTF8;
 
@@ -115,7 +117,7 @@ namespace WebDav
             {
                 new KeyValuePair<string, string>("Depth", DepthHeaderHelper.GetValueForPropfind(applyTo))
             };
-            string requestBody = PropfindRequestBuilder.BuildRequestBody(parameters.CustomProperties, parameters.Namespaces);
+            string requestBody = PropfindRequestBuilder.BuildRequestBody(parameters.StandardProperties, parameters.CustomProperties, parameters.Namespaces);
             var requestParams = new RequestParameters { Headers = headers, Content = new StringContent(requestBody, DefaultEncoding, MediaTypeXml) };
             var response = await _dispatcher.Send(requestUri, WebDavMethod.Propfind, requestParams, parameters.CancellationToken);
             var responseContent = await ReadContentAsString(response.Content).ConfigureAwait(false);
@@ -511,7 +513,7 @@ namespace WebDav
 			if (parameters is null)
 				throw new ArgumentNullException(nameof(parameters));
 
-			var applyTo = parameters.ApplyTo ?? ApplyTo.Copy.ResourceAndAncestors;
+			var applyTo = parameters.ApplyTo ?? ApplyTo.Copy.ResourceAndAllDescendants;
             var headers = new RequestHeaders
             {
                 new KeyValuePair<string, string>("Destination", GetAbsoluteUri(destUri).ToString()),
@@ -802,9 +804,12 @@ namespace WebDav
                 if (httpHandler.SupportsAutomaticDecompression)
                 {
                     httpHandler.AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip;
-                }
+				}
 
-                httpMessageHandler = httpHandler;
+                if (@params.IgnoreSslCertificateErrors)
+	                httpHandler.ServerCertificateCustomValidationCallback += IgnoreServerCertificateErrors;
+
+				httpMessageHandler = httpHandler;
             }
 
             HttpClient httpClient;
@@ -833,6 +838,11 @@ namespace WebDav
             return httpClient;
         }
 
+        private static bool IgnoreServerCertificateErrors(HttpRequestMessage arg1, X509Certificate2 arg2, X509Chain arg3, SslPolicyErrors arg4)
+        {
+	        return true;
+        }
+
         private static Uri CreateUri(string requestUri)
         {
             return !string.IsNullOrEmpty(requestUri) ? new Uri(requestUri, UriKind.RelativeOrAbsolute) : null;
@@ -859,8 +869,8 @@ namespace WebDav
                 return FallbackEncoding;
             }
         }
-
-        private static async Task<string> ReadContentAsString(HttpContent content)
+        
+private static async Task<string> ReadContentAsString(HttpContent content)
         {
             byte[] bytes = await content.ReadAsByteArrayAsync();
             Encoding encoding = GetResponseEncoding(content);

@@ -103,7 +103,7 @@ namespace WebDav.Client.Tests.Response
             var activeLock = response.ActiveLocks.ElementAt(0);
 
             Assert.NotNull(activeLock.ApplyTo);
-            Assert.Equal(ApplyTo.Lock.ResourceAndAncestors, activeLock.ApplyTo);
+            Assert.Equal(ApplyTo.Lock.ResourceAndAllDescendants, activeLock.ApplyTo);
         }
 
         [Fact]
@@ -125,7 +125,7 @@ namespace WebDav.Client.Tests.Response
             var activeLock = response.ActiveLocks.ElementAt(0);
 
             Assert.NotNull(activeLock.ApplyTo);
-            Assert.Equal(ApplyTo.Lock.ResourceAndAncestors, activeLock.ApplyTo);
+            Assert.Equal(ApplyTo.Lock.ResourceAndAllDescendants, activeLock.ApplyTo);
         }
 
         [Fact]

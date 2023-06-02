@@ -1,4 +1,6 @@
-﻿using System.Xml.Linq;
+﻿using System.IO;
+using System.Xml;
+using System.Xml.Linq;
 
 namespace WebDav
 {
@@ -8,7 +10,13 @@ namespace WebDav
         {
             try
             {
-                return XDocument.Parse(text);
+	            using var ms = new MemoryStream();
+	            using var writer = new StreamWriter(ms);
+                writer.Write(text);
+                writer.Flush();
+                ms.Position = 0;
+	            using var read = new XmlTextReader(ms);
+                return XDocument.Load(read);
             }
             catch
             {
