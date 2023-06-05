@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using WebDav.Client.Response;
+using WebDav.Response;
 
 namespace WebDav
 {
@@ -22,6 +24,8 @@ namespace WebDav
         /// Gets a collection locks on this resource.
         /// </summary>
         public IReadOnlyCollection<ActiveLock> ActiveLocks { get; private set; }
+        
+        public CalendarComponents CalendarComponents { get; private set; }
 
         /// <summary>
         /// Gets the content language of this resource.
@@ -90,11 +94,17 @@ namespace WebDav
         public IReadOnlyCollection<WebDavPropertyStatus> PropertyStatuses { get; private set; }
 
         /// <summary>
+        /// Gets the ResourceType flags of this resource.
+        /// </summary>
+        public ResourceType ResourceType { get; private set; }
+
+        /// <summary>
         /// Represents a builder of the <see cref="WebDavResource"/> class.
         /// </summary>
         public class Builder
         {
             private IReadOnlyCollection<ActiveLock> _activeLocks;
+            private CalendarComponents _calendarComponents;
             private string _contentLanguage;
             private int? _contentLength;
             private string _contentType;
@@ -107,6 +117,7 @@ namespace WebDav
             private DateTime? _lastModifiedDate;
             private IReadOnlyCollection<WebDavProperty> _properties;
             private IReadOnlyCollection<WebDavPropertyStatus> _propertyStatuses;
+            private ResourceType _resourceType;
 
             /// <summary>
             /// Sets the ActiveLocks parameter of an instance of the <see cref="WebDavResource"/> class.
@@ -117,10 +128,16 @@ namespace WebDav
                 return this;
             }
 
-            /// <summary>
-            /// Sets the ContentLanguage parameter of an instance of the <see cref="WebDavResource"/> class.
-            /// </summary>
-            public Builder WithContentLanguage(string contentLanguage)
+            public Builder WithCalendarComponents(CalendarComponents components)
+            {
+				_calendarComponents = components;
+                return this;
+            }
+
+			/// <summary>
+			/// Sets the ContentLanguage parameter of an instance of the <see cref="WebDavResource"/> class.
+			/// </summary>
+			public Builder WithContentLanguage(string contentLanguage)
             {
                 _contentLanguage = contentLanguage;
                 return this;
@@ -247,6 +264,12 @@ namespace WebDav
                 return this;
             }
 
+            public Builder WithResourceType(ResourceType resourceType)
+            {
+	            _resourceType = resourceType;
+                return this;
+			}
+
             /// <summary>
             /// Builds a new instance of the <see cref="WebDavResource"/> class.
             /// </summary>
@@ -256,6 +279,7 @@ namespace WebDav
                 return new WebDavResource
                 {
                     ActiveLocks = _activeLocks,
+                    CalendarComponents = _calendarComponents,
                     ContentLanguage = _contentLanguage,
                     ContentLength = _contentLength,
                     ContentType = _contentType,
@@ -267,7 +291,8 @@ namespace WebDav
                     IsHidden = _isHidden,
                     LastModifiedDate = _lastModifiedDate,
                     Properties = _properties,
-                    PropertyStatuses = _propertyStatuses
+                    PropertyStatuses = _propertyStatuses,
+                    ResourceType = _resourceType,
                 };
             }
         }

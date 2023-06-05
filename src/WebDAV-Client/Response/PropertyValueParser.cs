@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Numerics;
 using System.Xml.Linq;
+using Microsoft.VisualBasic.CompilerServices;
+using WebDav.Client.Response;
 
 namespace WebDav.Response
 {
@@ -27,15 +30,58 @@ namespace WebDav.Response
             DateTime value;
             return DateTime.TryParse(element.Value, out value) ? (DateTime?)value : null;
         }
+        
+        public static CalendarComponents ParseSupportedCalendarComponents(XElement element)
+        {
+	        if (element == null)
+		        return CalendarComponents.None;
+
+			var components = CalendarComponents.None;
+			foreach (var e in element.Elements(XName.Get("comp", element.Name.NamespaceName)))
+			{
+				var name = e.Attribute(XName.Get("name"));
+				if (name is null)
+					continue;
+				switch (name.Value)
+				{
+					case "VEVENT":
+						components |= CalendarComponents.VEvent;
+						break;
+					case "VFREEBUSY":
+						components |= CalendarComponents.VFreeBusy;
+						break;
+					case "VTIMEZONE":
+						components |= CalendarComponents.VTimeZone;
+						break;
+					case "VTODO":
+						components |= CalendarComponents.VToDo;
+						break;
+				}
+			}
+            
+	        return components;
+        }
 
         public static ResourceType ParseResourceType(XElement element)
         {
             if (element == null)
                 return ResourceType.Other;
 
-            return element.LocalNameElement("collection") != null
-                ? ResourceType.Collection
-                : ResourceType.Other;
+            var type = ResourceType.Other;
+            if (element.LocalNameElement("addressbook") is not null)
+	            type |= ResourceType.AddressBook;
+            if (element.LocalNameElement("calendar") is not null)
+	            type |= ResourceType.Calendar;
+            if (element.LocalNameElement("collection") is not null)
+	            type |= ResourceType.Collection;
+            if (element.LocalNameElement("notification") is not null)
+	            type |= ResourceType.Notification;
+            if (element.LocalNameElement("schedule-inbox") is not null)
+	            type |= ResourceType.ScheduleInbox;
+            if (element.LocalNameElement("schedule-outbox") is not null)
+	            type |= ResourceType.ScheduleOutbox;
+
+            return type;
         }
 
         public static LockScope? ParseLockScope(XElement element)

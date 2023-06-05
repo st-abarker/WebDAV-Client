@@ -43,8 +43,10 @@ namespace WebDav.Response
         private WebDavResource CreateResource(string uri, List<MultiStatusParser.Propstat> propstats)
         {
             var properties = MultiStatusParser.GetProperties(propstats);
+            var resourceType = PropertyValueParser.ParseResourceType(FindProp("{DAV:}resourcetype", properties));
             var resourceBuilder = new WebDavResource.Builder()
                 .WithActiveLocks(_lockResponseParser.ParseLockDiscovery(FindProp("{DAV:}lockdiscovery", properties)))
+                .WithCalendarComponents(PropertyValueParser.ParseSupportedCalendarComponents(FindProp("{urn:ietf:params:xml:ns:caldav}supported-calendar-component-set", properties)))
                 .WithContentLanguage(PropertyValueParser.ParseString(FindProp("{DAV:}getcontentlanguage", properties)))
                 .WithContentLength(PropertyValueParser.ParseInteger(FindProp("{DAV:}getcontentlength", properties)))
                 .WithContentType(PropertyValueParser.ParseString(FindProp("{DAV:}getcontenttype", properties)))
@@ -53,14 +55,15 @@ namespace WebDav.Response
                 .WithETag(PropertyValueParser.ParseString(FindProp("{DAV:}getetag", properties)))
                 .WithLastModifiedDate(PropertyValueParser.ParseDateTime(FindProp("{DAV:}getlastmodified", properties)))
                 .WithProperties(new ReadOnlyCollection<WebDavProperty>(properties.Select(x => new WebDavProperty(x.Name, x.GetInnerXml())).ToList()))
-                .WithPropertyStatuses(MultiStatusParser.GetPropertyStatuses(propstats));
+                .WithPropertyStatuses(MultiStatusParser.GetPropertyStatuses(propstats))
+                .WithResourceType(resourceType);
 
             var isHidden = PropertyValueParser.ParseInteger(FindProp("{DAV:}ishidden", properties)) > 0;
             if (isHidden)
                 resourceBuilder.IsHidden();
 
             var isCollection = PropertyValueParser.ParseInteger(FindProp("{DAV:}iscollection", properties)) > 0 ||
-                PropertyValueParser.ParseResourceType(FindProp("{DAV:}resourcetype", properties)) == ResourceType.Collection;
+                               resourceType.HasFlag(ResourceType.Collection);
             if (isCollection)
             {
                 resourceBuilder.IsCollection();
