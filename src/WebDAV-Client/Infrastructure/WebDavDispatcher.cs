@@ -21,7 +21,16 @@ namespace WebDav.Infrastructure
 
         public Uri BaseAddress => _httpClient.BaseAddress;
 
-        public async Task<HttpResponse> Send(Uri requestUri, HttpMethod method, RequestParameters requestParams, CancellationToken cancellationToken)
+        public async Task<HttpResponseMessage> Send(Uri requestUri, HttpMethod method, CancellationToken cancellationToken)
+        {
+	        using (var request = new HttpRequestMessage(method, requestUri))
+	        {
+                var response = await _httpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
+                return response;
+	        }
+		}
+
+		public async Task<HttpResponse> Send(Uri requestUri, HttpMethod method, RequestParameters requestParams, CancellationToken cancellationToken)
         {
             using (var request = new HttpRequestMessage(method, requestUri))
             {

@@ -9,6 +9,8 @@ namespace WebDav.Infrastructure
     {
         Uri BaseAddress { get; }
 
+        Task<HttpResponseMessage> Send(Uri requestUri, HttpMethod method, CancellationToken cancellationToken);
+
         Task<HttpResponse> Send(Uri requestUri, HttpMethod method, RequestParameters requestParams, CancellationToken cancellationToken);
     }
 }

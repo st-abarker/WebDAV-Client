@@ -7,8 +7,11 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
+using System.Windows.Markup;
+using WebDav.Client.Response;
 using WebDav.Infrastructure;
 using WebDav.Request;
 using WebDav.Response;
@@ -376,6 +379,45 @@ namespace WebDav
             var response = await _dispatcher.Send(requestUri, HttpMethod.Delete, requestParams, parameters.CancellationToken);
 
             return new WebDavResponse(response.StatusCode, response.Description);
+        }
+
+		/// <summary>
+		/// Checks the allowed operations for the request URI
+		/// </summary>
+		/// <param name="requestUri">A string that represents the request <see cref="T:System.Uri"/>.</param>
+		/// <returns>An <see cref="HttpMethods"/> indicating the allowed operations.</returns>
+		public Task<HttpMethods> Options(string requestUri)
+		{
+			return Options(CreateUri(requestUri));
+        }
+
+		/// <summary>
+		/// Checks the allowed operations for the request URI
+		/// </summary>
+		/// <param name="requestUri">The <see cref="System.Uri"/> to request.</param>
+		/// <returns>An <see cref="HttpMethods"/> indicating the allowed operations.</returns>
+		public async Task<HttpMethods> Options([DisallowNull] Uri requestUri)
+        {
+            if (requestUri is null)
+                throw new ArgumentNullException(nameof(requestUri));
+
+            var response = await _dispatcher.Send(requestUri, HttpMethod.Options, CancellationToken.None);
+            
+            var allowed = HttpMethods.None;
+            foreach (var method in response.Content.Headers.Allow)
+            {
+                if (Enum.TryParse(method, true, out HttpMethods enumVal))
+                    allowed |= enumVal;
+			}
+
+            if (response.Content.Headers.TryGetValues("DAV", out var values) &&
+                values.Contains("extended-mkcol", StringComparer.InvariantCultureIgnoreCase))
+            {
+	            allowed |= HttpMethods.MkColExtended;
+            }
+
+
+            return allowed;
         }
 
         /// <summary>
@@ -870,7 +912,7 @@ namespace WebDav
             }
         }
         
-private static async Task<string> ReadContentAsString(HttpContent content)
+		private static async Task<string> ReadContentAsString(HttpContent content)
         {
             byte[] bytes = await content.ReadAsByteArrayAsync();
             Encoding encoding = GetResponseEncoding(content);
