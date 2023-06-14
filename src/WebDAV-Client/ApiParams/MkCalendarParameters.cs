@@ -1,20 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Threading;
 using System.Xml.Linq;
 
 namespace WebDav
 {
 	/// <summary>
-	/// Represents parameters for the extended version of the MKCOL WebDAV method.
+	/// Represents parameters for the MKCALENDAR WebDAV method.
 	/// </summary>
-	public class MkColExtendedParameters
+	public class MkCalendarParameters
 	{
 		/// <summary>
-		/// Initializes a new instance of the <see cref="MkColExtendedParameters"/> class.
+		/// Initializes a new instance of the <see cref="MkCalendarParameters"/> class.
 		/// </summary>
-		public MkColExtendedParameters()
+		public MkCalendarParameters()
 		{
 			PropertiesToSet = new Dictionary<XName, string>();
 			Namespaces = new List<NamespaceAttr>();
@@ -25,7 +23,7 @@ namespace WebDav
 		/// Gets or sets properties to set on the resource.
 		/// </summary>
 		public IDictionary<XName, string> PropertiesToSet { get; set; }
-		
+
 		/// <summary>
 		/// Gets or sets the collection of xml namespaces of properties.
 		/// </summary>

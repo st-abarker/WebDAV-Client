@@ -30,6 +30,8 @@ namespace WebDav
 
         private IWebDavDispatcher _dispatcher;
 
+        private IResponseParser<MkCalendarResponse> _mkcalendarResponseParser;
+       
         private IResponseParser<MkColExtendedResponse> _mkcolExtendedResponseParser;
 
         private IResponseParser<PropfindResponse> _propfindResponseParser;
@@ -68,6 +70,7 @@ namespace WebDav
             SetWebDavDispatcher(new WebDavDispatcher(httpClient));
 
             var lockResponseParser = new LockResponseParser();
+            SetMkCalendarResponseParser(new MkCalendarResponseParser());
             SetMkColExtendedResponseParser(new MkColExtendedResponseParser());
             SetPropfindResponseParser(new PropfindResponseParser(lockResponseParser));
             SetProppatchResponseParser(new ProppatchResponseParser());
@@ -171,12 +174,52 @@ namespace WebDav
             return _proppatchResponseParser.Parse(responseContent, response.StatusCode, response.Description);
         }
 
-        /// <summary>
-        /// Creates a new collection resource at the location specified by the request URI.
-        /// </summary>
-        /// <param name="requestUri">A string that represents the request <see cref="T:System.Uri"/>.</param>
-        /// <returns>An instance of <see cref="WebDavResponse" /></returns>
-        public Task<WebDavResponse> Mkcol(string requestUri)
+		/// <summary>
+		/// Creates a new collection resource at the location specified by the request URI with the specified properties.
+		/// </summary>
+		/// <param name="requestUri">A string that represents the request <see cref="T:System.Uri"/>.</param>
+		/// <param name="parameters">Parameters of the MKCALENDAR operation.</param>
+		/// <returns>An instance of <see cref="WebDavResponse" /></returns>
+		public Task<WebDavResponse> Mkcalendar(string requestUri, MkCalendarParameters parameters)
+		{
+			return Mkcalendar(CreateUri(requestUri), parameters);
+		}
+
+		/// <summary>
+		/// Creates a new collection resource at the location specified by the request URI with the specified properties.
+		/// </summary>
+		/// <param name="requestUri">The <see cref="System.Uri"/> to request.</param>
+		/// <param name="parameters">Parameters of the MKCALENDAR operation.</param>
+		/// <returns>An instance of <see cref="WebDavResponse" /></returns>
+		public async Task<WebDavResponse> Mkcalendar([DisallowNull] Uri requestUri, [DisallowNull] MkCalendarParameters parameters)
+		{
+			if (requestUri is null)
+				throw new ArgumentNullException(nameof(requestUri));
+			if (parameters is null)
+				throw new ArgumentNullException(nameof(parameters));
+
+			var headers = new RequestHeaders();
+			if (!string.IsNullOrEmpty(parameters.LockToken))
+				headers.Add(new KeyValuePair<string, string>("If", IfHeaderHelper.GetHeaderValue(parameters.LockToken)));
+
+			var requestBody = MkCalendarRequestBuilder.BuildRequestBody(
+				parameters.PropertiesToSet,
+				parameters.Namespaces);
+
+			var requestParams = new RequestParameters { Headers = headers, Content = new StringContent(requestBody, DefaultEncoding, MediaTypeXml) };
+
+			var response = await _dispatcher.Send(requestUri, WebDavMethod.Mkcalendar, requestParams, parameters.CancellationToken);
+			var responseContent = await ReadContentAsString(response.Content).ConfigureAwait(false);
+
+			return _mkcalendarResponseParser.Parse(responseContent, response.StatusCode, response.Description);
+		}
+
+		/// <summary>
+		/// Creates a new collection resource at the location specified by the request URI.
+		/// </summary>
+		/// <param name="requestUri">A string that represents the request <see cref="T:System.Uri"/>.</param>
+		/// <returns>An instance of <see cref="WebDavResponse" /></returns>
+		public Task<WebDavResponse> Mkcol(string requestUri)
         {
             return Mkcol(CreateUri(requestUri), new MkColParameters());
         }
@@ -826,7 +869,15 @@ namespace WebDav
             return this;
         }
 
-        internal WebDavClient SetMkColExtendedResponseParser([DisallowNull] IResponseParser<MkColExtendedResponse> responseParser)
+        internal WebDavClient SetMkCalendarResponseParser([DisallowNull] IResponseParser<MkCalendarResponse> responseParser)
+        {
+	        if (responseParser is null)
+		        throw new ArgumentNullException(nameof(responseParser));
+	        _mkcalendarResponseParser = responseParser;
+	        return this;
+        }
+
+		internal WebDavClient SetMkColExtendedResponseParser([DisallowNull] IResponseParser<MkColExtendedResponse> responseParser)
 		{
 			if (responseParser is null)
 				throw new ArgumentNullException(nameof(responseParser));

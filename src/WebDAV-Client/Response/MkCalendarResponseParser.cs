@@ -3,21 +3,21 @@ using System.Linq;
 
 namespace WebDav.Response
 {
-	internal class MkColExtendedResponseParser : IResponseParser<MkColExtendedResponse>
+	internal class MkCalendarResponseParser : IResponseParser<MkCalendarResponse>
 	{
-		public MkColExtendedResponse Parse(string response, int statusCode, string description)
+		public MkCalendarResponse Parse(string response, int statusCode, string description)
 		{
 			if (string.IsNullOrEmpty(response))
-				return new MkColExtendedResponse(statusCode, description);
+				return new MkCalendarResponse(statusCode, description);
 
 			var xResp = XDocumentExtensions.TryParse(response);
 			if (xResp?.Root is null)
-				return new MkColExtendedResponse(statusCode, description);
+				return new MkCalendarResponse(statusCode, description);
 
 			var statuses = xResp.Root.LocalNameElements("response", StringComparison.OrdinalIgnoreCase)
 				.SelectMany(MultiStatusParser.GetPropertyStatuses)
 				.ToList();
-			return new MkColExtendedResponse(statusCode, description, statuses);
+			return new MkCalendarResponse(statusCode, description, statuses);
 		}
 	}
 }

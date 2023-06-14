@@ -2,25 +2,27 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace WebDav.Response
 {
-	public class MkColExtendedResponse : WebDavResponse
+	public class MkCalendarResponse : WebDavResponse
 	{
-		public MkColExtendedResponse(int statusCode)
-            : this(statusCode, null, new List<WebDavPropertyStatus>())
+		public MkCalendarResponse(int statusCode)
+			: this(statusCode, null, new List<WebDavPropertyStatus>())
 		{ }
 
-		public MkColExtendedResponse(int statusCode, IEnumerable<WebDavPropertyStatus> statuses)
+		public MkCalendarResponse(int statusCode, IEnumerable<WebDavPropertyStatus> statuses)
 			: this(statusCode, null, statuses)
 		{ }
 
-		public MkColExtendedResponse(int statusCode, string description)
+		public MkCalendarResponse(int statusCode, string description)
 			: this(statusCode, description, new List<WebDavPropertyStatus>())
 		{ }
 
-		public MkColExtendedResponse(int statusCode, string description, [DisallowNull] IEnumerable<WebDavPropertyStatus> statuses)
-            : base(statusCode, description)
+		public MkCalendarResponse(int statusCode, string description, [DisallowNull] IEnumerable<WebDavPropertyStatus> statuses)
+			: base(statusCode, description)
 		{
 			if (statuses is null)
 				throw new ArgumentNullException(nameof(statuses));
@@ -34,7 +36,7 @@ namespace WebDav.Response
 
 		public override string ToString()
 		{
-			return $"Extended MKCOL WebDAV response - StatusCode: {StatusCode}, Description: {Description}";
+			return $"MKCALENDAR WebDAV response - StatusCode: {StatusCode}, Description: {Description}";
 		}
 	}
 }

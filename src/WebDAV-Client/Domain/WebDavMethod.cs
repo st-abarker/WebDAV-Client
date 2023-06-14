@@ -8,6 +8,8 @@ namespace WebDav
 
         public static readonly HttpMethod Proppatch = new HttpMethod("PROPPATCH");
 
+        public static readonly HttpMethod Mkcalendar = new HttpMethod("MKCALENDAR");
+
         public static readonly HttpMethod Mkcol = new HttpMethod("MKCOL");
 
         public static readonly HttpMethod Copy = new HttpMethod("COPY");
