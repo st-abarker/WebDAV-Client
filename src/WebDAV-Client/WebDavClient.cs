@@ -13,6 +13,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Windows.Markup;
 using WebDav.Client.Response;
 using WebDav.Infrastructure;
+using WebDav.Report;
 using WebDav.Request;
 using WebDav.Response;
 using RequestHeaders = System.Collections.Generic.List<System.Collections.Generic.KeyValuePair<string, string>>;
@@ -37,6 +38,8 @@ namespace WebDav
         private IResponseParser<PropfindResponse> _propfindResponseParser;
 
         private IResponseParser<ProppatchResponse> _proppatchResponseParser;
+
+        private IResponseParser<ReportResponse> _reportResponseParser;
 
         private IResponseParser<LockResponse> _lockResponseParser;
 
@@ -74,6 +77,7 @@ namespace WebDav
             SetMkColExtendedResponseParser(new MkColExtendedResponseParser());
             SetPropfindResponseParser(new PropfindResponseParser(lockResponseParser));
             SetProppatchResponseParser(new ProppatchResponseParser());
+            SetReportResponseParser(new ReportResponseParser(lockResponseParser));
             SetLockResponseParser(lockResponseParser);
         }
 
@@ -180,7 +184,7 @@ namespace WebDav
 		/// <param name="requestUri">A string that represents the request <see cref="T:System.Uri"/>.</param>
 		/// <param name="parameters">Parameters of the MKCALENDAR operation.</param>
 		/// <returns>An instance of <see cref="WebDavResponse" /></returns>
-		public Task<WebDavResponse> Mkcalendar(string requestUri, MkCalendarParameters parameters)
+		public Task<MkCalendarResponse> Mkcalendar(string requestUri, MkCalendarParameters parameters)
 		{
 			return Mkcalendar(CreateUri(requestUri), parameters);
 		}
@@ -191,7 +195,7 @@ namespace WebDav
 		/// <param name="requestUri">The <see cref="System.Uri"/> to request.</param>
 		/// <param name="parameters">Parameters of the MKCALENDAR operation.</param>
 		/// <returns>An instance of <see cref="WebDavResponse" /></returns>
-		public async Task<WebDavResponse> Mkcalendar([DisallowNull] Uri requestUri, [DisallowNull] MkCalendarParameters parameters)
+		public async Task<MkCalendarResponse> Mkcalendar([DisallowNull] Uri requestUri, [DisallowNull] MkCalendarParameters parameters)
 		{
 			if (requestUri is null)
 				throw new ArgumentNullException(nameof(requestUri));
@@ -275,7 +279,7 @@ namespace WebDav
         /// <param name="requestUri">A string that represents the request <see cref="T:System.Uri"/>.</param>
         /// <param name="parameters">Parameters of the extended MKCOL operation.</param>
         /// <returns>An instance of <see cref="WebDavResponse" /></returns>
-		public Task<WebDavResponse> MkcolExtended(string requestUri, MkColExtendedParameters parameters)
+		public Task<MkColExtendedResponse> MkcolExtended(string requestUri, MkColExtendedParameters parameters)
         {
 	        return MkcolExtended(CreateUri(requestUri), parameters);
         }
@@ -286,7 +290,7 @@ namespace WebDav
 		/// <param name="requestUri">The <see cref="System.Uri"/> to request.</param>
 		/// <param name="parameters">Parameters of the extended MKCOL operation.</param>
 		/// <returns>An instance of <see cref="WebDavResponse" /></returns>
-		public async Task<WebDavResponse> MkcolExtended([DisallowNull] Uri requestUri, [DisallowNull] MkColExtendedParameters parameters)
+		public async Task<MkColExtendedResponse> MkcolExtended([DisallowNull] Uri requestUri, [DisallowNull] MkColExtendedParameters parameters)
 		{
 			if (requestUri is null)
 				throw new ArgumentNullException(nameof(requestUri));
@@ -309,6 +313,25 @@ namespace WebDav
 			return _mkcolExtendedResponseParser.Parse(responseContent, response.StatusCode, response.Description);
 		}
 
+		public Task<ReportResponse> Report(string requestUri, IReportParameters parameters)
+		{
+			return Report(CreateUri(requestUri), parameters);
+		}
+
+        public async Task<ReportResponse> Report([DisallowNull] Uri requestUri, [DisallowNull] IReportParameters parameters)
+        {
+			if (requestUri is null)
+				throw new ArgumentNullException(nameof(requestUri));
+			if (parameters is null)
+				throw new ArgumentNullException(nameof(parameters));
+
+			var requestBody = ReportRequestBuilder.BuildRequestBody(parameters);
+            var requestParams = new RequestParameters{ Content = new StringContent(requestBody, DefaultEncoding, MediaTypeXml) };
+            var response = await _dispatcher.Send(requestUri, WebDavMethod.Report, requestParams, parameters.CancellationToken);
+            var responseContent = await ReadContentAsString(response.Content).ConfigureAwait(false);
+            return _reportResponseParser.Parse(responseContent, response.StatusCode, response.Description);
+        }
+        
 		/// <summary>
 		/// Retrieves the file identified by the request URI telling the server to return it without processing.
 		/// </summary>
@@ -912,11 +935,24 @@ namespace WebDav
         }
 
         /// <summary>
-        /// Sets the parser of LOCK responses.
+        /// Sets the parser of PROPFIND responses.
         /// </summary>
-        /// <param name="responseParser">The parser of WebDAV LOCK responses.</param>
+        /// <param name="responseParser">The parser of WebDAV PROPFIND responses.</param>
         /// <returns>This instance of <see cref="WebDavClient" /> to support chain calls.</returns>
-        internal WebDavClient SetLockResponseParser([DisallowNull] IResponseParser<LockResponse> responseParser)
+        internal WebDavClient SetReportResponseParser([DisallowNull] IResponseParser<ReportResponse> responseParser)
+        {
+	        if (responseParser is null)
+		        throw new ArgumentNullException(nameof(responseParser));
+	        _reportResponseParser = responseParser;
+	        return this;
+        }
+
+		/// <summary>
+		/// Sets the parser of LOCK responses.
+		/// </summary>
+		/// <param name="responseParser">The parser of WebDAV LOCK responses.</param>
+		/// <returns>This instance of <see cref="WebDavClient" /> to support chain calls.</returns>
+		internal WebDavClient SetLockResponseParser([DisallowNull] IResponseParser<LockResponse> responseParser)
 		{
 			if (responseParser is null)
 				throw new ArgumentNullException(nameof(responseParser));

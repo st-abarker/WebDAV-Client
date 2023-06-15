@@ -12,6 +12,8 @@ namespace WebDav
 
         public static readonly HttpMethod Mkcol = new HttpMethod("MKCOL");
 
+        public static readonly HttpMethod Report = new HttpMethod("REPORT");
+
         public static readonly HttpMethod Copy = new HttpMethod("COPY");
 
         public static readonly HttpMethod Move = new HttpMethod("MOVE");
