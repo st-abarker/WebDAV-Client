@@ -520,12 +520,12 @@ namespace WebDav
 			}
 
             if (response.Content.Headers.TryGetValues("DAV", out var values) &&
-                values.Any(v => v.Contains("extended-mkcol", StringComparison.InvariantCultureIgnoreCase)))
+                values.Any(v => v.Contains("extended-mkcol", StringComparison.OrdinalIgnoreCase)))
             {
 	            allowed |= HttpMethods.MkColExtended;
             }
             else if (response.Headers.TryGetValues("DAV", out values) &&
-                     values.Any(v => v.Contains("extended-mkcol", StringComparison.InvariantCultureIgnoreCase)))
+                     values.Any(v => v.Contains("extended-mkcol", StringComparison.OrdinalIgnoreCase)))
             {
 	            allowed |= HttpMethods.MkColExtended;
             }
