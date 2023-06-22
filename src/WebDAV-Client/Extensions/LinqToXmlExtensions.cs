@@ -12,7 +12,7 @@ namespace WebDav
             if (doc == null)
                 throw new ArgumentNullException(nameof(doc));
 
-            return doc.Declaration + Environment.NewLine + doc;
+            return doc.Declaration + "\r\n" + doc;
         }
 
         public static string GetValueOrNull(this XElement element)
