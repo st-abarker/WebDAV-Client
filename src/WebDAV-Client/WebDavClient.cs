@@ -495,7 +495,7 @@ namespace WebDav
 		/// </summary>
 		/// <param name="requestUri">A string that represents the request <see cref="T:System.Uri"/>.</param>
 		/// <returns>An <see cref="HttpMethods"/> indicating the allowed operations.</returns>
-		public Task<HttpMethods> Options(string requestUri)
+		public Task<(HttpMethods allowedMethods, string[] davOptions)> Options(string requestUri)
 		{
 			return Options(CreateUri(requestUri));
         }
@@ -505,7 +505,7 @@ namespace WebDav
 		/// </summary>
 		/// <param name="requestUri">The <see cref="System.Uri"/> to request.</param>
 		/// <returns>An <see cref="HttpMethods"/> indicating the allowed operations.</returns>
-		public async Task<HttpMethods> Options([DisallowNull] Uri requestUri)
+		public async Task<(HttpMethods allowedMethods, string[] davOptions)> Options([DisallowNull] Uri requestUri)
         {
             if (requestUri is null)
                 throw new ArgumentNullException(nameof(requestUri));
@@ -519,19 +519,22 @@ namespace WebDav
                     allowed |= enumVal;
 			}
 
-            if (response.Content.Headers.TryGetValues("DAV", out var values) &&
-                values.Any(v => v.Contains("extended-mkcol", StringComparison.OrdinalIgnoreCase)))
-            {
-	            allowed |= HttpMethods.MkColExtended;
-            }
-            else if (response.Headers.TryGetValues("DAV", out values) &&
-                     values.Any(v => v.Contains("extended-mkcol", StringComparison.OrdinalIgnoreCase)))
-            {
-	            allowed |= HttpMethods.MkColExtended;
-            }
+            var davOpts = Array.Empty<string>();
+            if (response.Content.Headers.TryGetValues("DAV", out var values))
+	            davOpts = values
+		            .SelectMany(x => x.Split(','))
+		            .Select(x => x.Trim())
+		            .ToArray();
+            else if (response.Headers.TryGetValues("DAV", out values))
+	            davOpts = values
+		            .SelectMany(x => x.Split(','))
+		            .Select(x => x.Trim())
+		            .ToArray();
 
+			if (davOpts.Any(v => v.Equals("extended-mkcol", StringComparison.OrdinalIgnoreCase)))
+	            allowed |= HttpMethods.MkColExtended;
 
-			return allowed;
+			return (allowed, davOpts);
         }
 
         /// <summary>
